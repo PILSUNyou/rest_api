@@ -1,4 +1,4 @@
-package com.example.jwt.domain.member;
+package com.example.jwt.domain.member.controller;
 
 import org.springframework.web.bind.annotation.*;
 
