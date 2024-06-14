@@ -7,18 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -48,21 +47,38 @@ class MemberControllerTest {
 
         // Then
         resultActions
-                .andExpect(status().is2xxSuccessful());
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.resultCode").value("S-1"))
+                .andExpect(jsonPath("$.msg").exists())
+                .andExpect(jsonPath("$.data.accessToken").exists());
 
-        MvcResult mvcResult = resultActions.andReturn();
 
-        MockHttpServletResponse response = mvcResult.getResponse();
-
-        String authentication = response.getHeader("Authentication");
-
-        assertThat(authentication).isNotEmpty();
+//        MvcResult mvcResult = resultActions.andReturn();
+//
+//        MockHttpServletResponse response = mvcResult.getResponse();
+//
+//        String authentication = response.getHeader("Authentication");
+//
+//        assertThat(authentication).isNotEmpty();
     }
 
     @Test
-    @DisplayName("로그인 토근 발급 검증")
+    @DisplayName("GET / member/me 내 => 내 정보를 확인하는 URL 이다.")
     void t2() throws Exception {
 
+        // When
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/member/me")
+                )
+                        .andDo(print());
+        // Then
+        resultActions
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.resultCode").value("S-2"))
+                .andExpect(jsonPath("$.msg").exists())
+                .andExpect(jsonPath("$.data.member.id").exists())
+                .andExpect(jsonPath("$.data.member.username").exists());
 
     }
 }
