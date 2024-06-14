@@ -1,5 +1,6 @@
-package com.example.jwt;
+package com.example.jwt.global.jwt;
 
+import com.example.jwt.global.util.Util;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;

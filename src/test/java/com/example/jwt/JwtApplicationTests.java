@@ -1,5 +1,6 @@
 package com.example.jwt;
 
+import com.example.jwt.global.jwt.JwtProvider;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
