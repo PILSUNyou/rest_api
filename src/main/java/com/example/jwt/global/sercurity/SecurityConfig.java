@@ -25,14 +25,14 @@ public class SecurityConfig {
                 .securityMatcher("/api/**") // 아래의 모든 설정은 /api/** 경로에만 적용
                 .authorizeHttpRequests(
                         authorizeHttpRequests -> authorizeHttpRequests
-                                .requestMatchers(HttpMethod.POST,"/api/*/member/login").permitAll() // 로그인은 누구나 가능
+                                .requestMatchers(HttpMethod.POST, "/api/*/member/login").permitAll() // 로그인은 누구나 가능
                                 .requestMatchers(HttpMethod.GET,"/api/*/articles").permitAll() // 리스트 보기는 누구나 가능
                                 .requestMatchers(HttpMethod.GET,"/api/*/articles/*").permitAll() // 상세 보기는 누구나 가능
                                 .anyRequest().authenticated() // 나머지는 인증된 사용자만 가능
                 )
                 .cors(
                         cors -> cors.disable()
-                ) // 타 도메인에서 API 호출 가능
+                )// 타 도메인에서 API 호출 가능
                 .csrf(
                         csrf -> csrf.disable()
                 ) // CSRF 토큰 끄기

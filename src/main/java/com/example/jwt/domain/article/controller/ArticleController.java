@@ -18,6 +18,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,7 +63,7 @@ public class ArticleController {
                 new ArticleResponse(article)
         )).orElseGet(() -> RsData.of(
                 "F-1",
-                "@d번 게시물은 존재하지 않습니다.".formatted(id),
+                "%d번 게시물은 존재하지 않습니다.".formatted(id),
                 null
         ));
     }
@@ -94,6 +97,85 @@ public class ArticleController {
                 writeRs.getResultCode(),
                 writeRs.getMsg(),
                 new WriteResponse(writeRs.getData())
+        );
+    }
+
+    @Data
+    public static class ModifyRequest{
+        @NotBlank
+        private String subject;
+        @NotBlank
+        private String content;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class ModifyResponse {
+        private final Article article;
+    }
+
+    @PatchMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
+    @Operation(summary = "수정", security = @SecurityRequirement(name = "bearerAuth"))
+    public RsData<ModifyResponse> modify(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody ModifyRequest modifyRequest,
+            @PathVariable("id") Long id
+    ){
+        Member member = memberService.findByUsername(user.getUsername()).orElseThrow();
+
+        Optional<Article> opArticle = articleService.findById(id);
+
+        if (opArticle.isEmpty()) return RsData.of(
+                "F-1",
+                "%d번 게시물은 존재하지 않습니다.".formatted(id),
+                null
+        );
+
+        RsData canModifyRs = articleService.canModify(member, opArticle.get());
+
+        if ( canModifyRs.isFail()) return canModifyRs;
+
+        RsData<Article> modifyRs = articleService.modify(opArticle.get(), modifyRequest.getSubject(), modifyRequest.getContent());
+
+        return RsData.of(
+                modifyRs.getResultCode(),
+                modifyRs.getMsg(),
+                new ModifyResponse(modifyRs.getData())
+        );
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class DeleteResponse {
+        private final Article article;
+    }
+
+    @DeleteMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
+    @Operation(summary = "삭제", security = @SecurityRequirement(name = "bearerAuth"))
+    public RsData<DeleteResponse> remove(
+            @AuthenticationPrincipal User user,
+            @PathVariable("id") Long id
+    ){
+        Member member = memberService.findByUsername(user.getUsername()).orElseThrow();
+
+        Optional<Article> opArticle = articleService.findById(id);
+
+        if (opArticle.isEmpty()) return RsData.of(
+                "F-1",
+                "%d번 게시물은 존재하지 않습니다.".formatted(id),
+                null
+        );
+
+        RsData canDeleteRs = articleService.canDelete(member, opArticle.get());
+
+        if ( canDeleteRs.isFail()) return canDeleteRs;
+
+        articleService.deleteById(id);
+
+        return RsData.of(
+                "S-5",
+                "%d번 게시물이 삭제되었습니다.".formatted(id),
+                null
         );
     }
 }
