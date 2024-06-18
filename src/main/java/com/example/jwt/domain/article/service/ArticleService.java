@@ -7,6 +7,8 @@ import com.example.jwt.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
@@ -26,5 +28,9 @@ public class ArticleService {
                 "게시물이 생성 되었습니다.",
                 article
         );
+    }
+
+    public List<Article> findAll() {
+        return articleRepository.findAll();
     }
 }
